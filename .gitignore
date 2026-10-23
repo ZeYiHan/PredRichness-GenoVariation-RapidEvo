@@ -1,0 +1,31 @@
+library/
+local/
+cellar/
+lock/
+python/
+sandbox/
+staging/
+
+# unpublished data
+data/
+output/
+_targets/
+upstream_barcode/
+scratch/
+
+# rendered reports - unpublished
+*.html
+*.pdf
+*_cache/
+*_files/
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+.RDataTmp
+
+# User-specific files
+.Ruserdata

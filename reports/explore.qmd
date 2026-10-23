@@ -1,0 +1,156 @@
+---
+title: "Exploratoary results - Predator Richness and Genotypic variation Interactively Shape Prey Evolution"
+author: "Ze-Yi Han"
+date: today
+format:
+  html:
+    theme: minty
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    embed-resources: true
+    fig-width: 8
+    fig-height: 6
+    fig-dpi: 300
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(targets)
+library(nlme)
+library(ggtext)
+library(broom)
+library(pheatmap)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+
+# Population dynamics analysis 
+
+## Overall population dynamics
+```{r}
+#| label: fig-dynamics
+#| fig-cap: "Population density over time across predator richness and genetic variaation treatments."
+tar_read(fig_pop_dynamics)
+``` 
+
+### Population dynamics models
+Hypothesis testing:
+
+* Do predator richness and genotypic variation interactively affect prey population dynamics?
+* Do predator presence interactively or additively affect prey population dynamics?
+
+#### 1. Check for temporal autocorrelation 
+
+```{r }
+#| label: tbl-dyn-autocorr
+#| tbl-cap: "AIC comparison of autoregressive error structures (full model, REML)."
+knitr::kable(tar_read(mod_dyn_autocorr_check)$aic, digits = 2)
+```
+
+Tested: none, AR(1), AR(2). AR(1) was best supported (ΔAIC ≥ 2 relative to alternatives) and was used for inference.
+
+#### 2. PR GV interactive effects?
+```{r }
+#| label: tbl-anova-mod-pr-gv
+#| tbl-cap: "Anova table for model testing predator richness and genotypic variation interactive effects."
+knitr::kable(tar_read(anova_pr_gv))
+```
+GV main effects significant, day and day*pred richness significant. Both PR and GV significantly affect prey population dynamics. But no GV and PR interactive effects. 
+
+#### 3. Predator presence interactive or additive?
+```{r }
+#| label: tbl-anova-mod-pred-int
+#| tbl-cap: "Anova table for model testing predator richness and genotypic variation interactive effects on over all C. reinhardtii population dynamics."
+knitr::kable(tar_read(anova_pred_int))
+```
+TP, GP, TGP have significant interaction, but not TG - fair. TG are similar and both weaker predators. GV main effect significant, but its effect likely is different depending on predator composition. 
+
+### PR GV effects on population variations
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-sd-richness
+#| fig-cap: "Variation across replicates within predator richness treatments overtime."
+tar_read(fig_sd_richness)
+``` 
+Looks like predator richness affects prey population variation. Population variations decrease at day 21, suggestion population are more stable
+
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-sd-gv
+#| fig-cap: "Variation across replicates within genotypic variation treatments overtime."
+tar_read(fig_sd_gv)
+``` 
+hard to tell GV effect just by looking at the plot
+
+generalized linear model to test GV and PR effects on population variation. 
+hypothese -  high GV decrease variability, PR here would decrease variation. 
+
+```{r }
+#| label: tbl-anova-mod-sd
+#| tbl-cap: "Anova table for model testing predator richness and genotypic variation interactive effects on variations in population dynamcis."
+knitr::kable(tar_read(anova_sd))
+```
+Predator richness affects but genotypic variation doesn't affect variation across populations. 
+
+# Evolutionary outcome analysis
+
+## Vistuatlizing delta change in genotypic frequency
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-hmp-dlt-gv10
+#| fig-cap: "Delta freq change in GV10."
+print(tar_read(hmp_dlt_gv10))
+``` 
+Clear control vs predation different --> competition vs predation defenese trade-off
+
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-hmp-dlt-gv100
+#| fig-cap: "Delta freq change in GV100."
+print(tar_read(hmp_dlt_gv100))
+``` 
+One super performer strain that has increasing frequency with increasing predator richness. It do better under stronger predation selection. 
+
+
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-hmp-dlt-gv1000
+#| fig-cap: "Delta freq change in GV1000."
+print(tar_read(hmp_dlt_gv1000))
+``` 
+
+Clear different selection pattern from small vs large ciliates.
+
+
+
+## Quantifying genotypic loss and diversity
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-bc-perc-loss
+#| fig-cap: "Percentage genotypic loss in prey population."
+tar_read(fig_bc_perc_loss)
+``` 
+
+```{r }
+#| label: tbl-anova-cb-loss
+#| tbl-cap: "Anova table for model testing predator richness and genotypic variation interactive effects on percentage genotypic loss."
+knitr::kable(tar_read(anova_bc_loss))
+#knitr::kable(broom::tidy(tar_read(fit_mod_bc_loss)))     # coefficients, SE, t, p
+#knitr::kable(broom::glance(tar_read(fit_mod_bc_loss)))
+```
+
+```{r}
+knitr::kable(broom::tidy(tar_read(mod_bc_perc_loss))) 
+```
+
+```{r fig.width = 6, fig.height = 4}
+#| label: fig-bc-shann
+#| fig-cap: "Percentage genotypic loss in prey population."
+tar_read(fig_bc_shannon)
+``` 
+
+```{r }
+#| label: tbl-anova-cb-shann
+#| tbl-cap: "Anova table for model testing predator richness and genotypic variation interactive effects on genotypic Shannon diverity of prey population."
+knitr::kable(tar_read(anova_bc_shann))
+```
